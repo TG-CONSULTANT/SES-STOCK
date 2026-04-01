@@ -11,20 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
-        
-        /* เพิ่มขนาดตัวอักษร 10% */
         html { font-size: 110%; } 
         body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
-        
         .bg-gradient { background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%); }
         .tab-active { border-bottom: 4px solid #fff; font-weight: 600; color: #fff; }
-        
-        /* สัดส่วนตาราง 18% : 46% : 18% : 18% */
-        .col-1 { width: 18%; }
-        .col-2 { width: 46%; }
-        .col-3 { width: 18%; }
-        .col-4 { width: 18%; }
-
+        .col-1 { width: 18%; } .col-2 { width: 46%; } .col-3 { width: 18%; } .col-4 { width: 18%; }
         .awesomplete { width: 100% !important; }
         [x-cloak] { display: none !important; }
     </style>
@@ -34,20 +25,18 @@
     <div class="bg-gradient text-white px-2 py-2 shadow-md sticky top-0 z-50">
         <h1 class="text-center font-semibold text-lg mb-1">ทรัพย์รุ่งเรือง-สต็อกอะไหล่</h1>
         <div class="flex justify-around text-sm">
-            <button @click="changeTab('out')" :class="tab === 'out' ? 'tab-active' : ''" class="pb-1 px-2 transition-all uppercase">เบิกออก</button>
-            <button @click="changeTab('in')" :class="tab === 'in' ? 'tab-active' : ''" class="pb-1 px-2 transition-all uppercase">รับเข้า</button>
-            <button @click="changeTab('stock')" :class="tab === 'stock' ? 'tab-active' : ''" class="pb-1 px-2 transition-all uppercase font-mono">Stock</button>
+            <button @click="changeTab('out')" :class="tab === 'out' ? 'tab-active' : ''" class="pb-1 px-2 transition-all">เบิกออก</button>
+            <button @click="changeTab('in')" :class="tab === 'in' ? 'tab-active' : ''" class="pb-1 px-2 transition-all">รับเข้า</button>
+            <button @click="changeTab('stock')" :class="tab === 'stock' ? 'tab-active' : ''" class="pb-1 px-2 transition-all">STOCK</button>
         </div>
     </div>
 
     <div class="container mx-auto px-1.5 mt-3" x-cloak>
-        
         <template x-if="tab === 'out' || tab === 'in'">
             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                
                 <div>
                     <label class="block text-sm font-semibold text-slate-500 mb-1">ผู้บันทึก</label>
-                    <select x-model="form.user" class="w-full border border-slate-300 p-2.5 rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                    <select x-model="form.user" class="w-full border border-slate-300 p-2.5 rounded-xl bg-slate-50 outline-none">
                         <option value="">-- เลือกรายชื่อ --</option>
                         <template x-for="u in users">
                             <option :value="u" x-text="u"></option>
@@ -77,28 +66,22 @@
                                     <td class="p-2 border-b truncate" x-text="scannedItem.name"></td>
                                     <td class="p-2 border-b text-center font-semibold" x-text="scannedItem.balance"></td>
                                     <td class="p-2 border-b">
-                                        <input type="number" x-model.number="form.qty" 
-                                               @focus="$event.target.select()"
-                                               class="w-full border border-blue-400 rounded-lg text-center py-1.5 font-bold outline-none focus:bg-white" 
-                                               min="1">
+                                        <input type="number" x-model.number="form.qty" @focus="$event.target.select()"
+                                               class="w-full border border-blue-400 rounded-lg text-center py-1.5 font-bold outline-none" min="1">
                                     </td>
                                 </tr>
                             </template>
                             <template x-if="!scannedItem">
-                                <tr>
-                                    <td colspan="4" class="p-8 text-center text-slate-400 italic text-sm">ยังไม่มีข้อมูลการสแกน</td>
-                                </tr>
+                                <tr><td colspan="4" class="p-8 text-center text-slate-400 italic text-sm">ยังไม่มีข้อมูลการสแกน</td></tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
 
                 <textarea x-model="form.note" class="w-full border border-slate-300 p-3 rounded-xl text-sm outline-none" rows="2" placeholder="ระบุหมายเหตุ..."></textarea>
-                
                 <button @click="saveData()" :disabled="loading || !form.code || !form.user" 
                     class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 disabled:bg-slate-300 transition-all"
-                    x-text="loading ? '⏳ กำลังประมวลผล...' : (tab === 'out' ? 'บันทึกเบิกออก' : 'บันทึกรับเข้า')">
-                </button>
+                    x-text="loading ? '⏳ กำลังบันทึก...' : (tab === 'out' ? 'บันทึกเบิกออก' : 'บันทึกรับเข้า')"></button>
             </div>
         </template>
 
@@ -111,20 +94,13 @@
                         </div>
                         <button @click="searchData()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">ค้นหา</button>
                     </div>
-                    
                     <div class="mt-4 overflow-hidden rounded-xl border border-blue-100 shadow-sm" x-show="searchResult">
                         <table class="w-full text-sm table-fixed border-collapse">
                             <tr class="bg-blue-600 text-white font-semibold">
-                                <td class="p-2 col-2">รายการ</td>
-                                <td class="p-2 col-1 text-center">ตำแหน่ง</td>
-                                <td class="p-2 col-1 text-center">SS</td>
-                                <td class="p-2 col-1 text-center font-bold">เหลือ</td>
+                                <td class="p-2 col-2">รายการ</td><td class="p-2 col-1 text-center">ตำแหน่ง</td><td class="p-2 col-1 text-center">SS</td><td class="p-2 col-1 text-center font-bold">เหลือ</td>
                             </tr>
                             <tr class="bg-white">
-                                <td class="p-2 border-b truncate font-medium" x-text="searchResult.name"></td>
-                                <td class="p-2 border-b text-center font-mono" x-text="searchResult.pos"></td>
-                                <td class="p-2 border-b text-center" x-text="searchResult.ss"></td>
-                                <td class="p-2 border-b text-center font-bold text-blue-600" x-text="searchResult.qty"></td>
+                                <td class="p-2 border-b truncate font-medium" x-text="searchResult.name"></td><td class="p-2 border-b text-center" x-text="searchResult.pos"></td><td class="p-2 border-b text-center" x-text="searchResult.ss"></td><td class="p-2 border-b text-center font-bold text-blue-600" x-text="searchResult.qty"></td>
                             </tr>
                         </table>
                     </div>
@@ -133,22 +109,14 @@
                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
                     <h3 class="font-bold text-slate-700 mb-2 border-l-4 border-blue-600 pl-2 text-base">สต็อกอะไหล่ทั้งหมด</h3>
                     <div class="overflow-hidden rounded-xl border border-slate-200">
-                        <table class="w-full text-left table-fixed border-collapse">
+                        <table class="w-full text-left table-fixed border-collapse text-sm">
                             <thead class="bg-slate-50 text-[0.65rem] font-bold text-slate-400 border-b">
-                                <tr>
-                                    <th class="p-2 col-2">รายการ</th>
-                                    <th class="p-2 col-1 text-center uppercase">POS</th>
-                                    <th class="p-2 col-1 text-center">SS</th>
-                                    <th class="p-2 col-1 text-center font-bold">เหลือ</th>
-                                </tr>
+                                <tr><th class="p-2 col-2">รายการ</th><th class="p-2 col-1 text-center">POS</th><th class="p-2 col-1 text-center">SS</th><th class="p-2 col-1 text-center">เหลือ</th></tr>
                             </thead>
-                            <tbody class="text-sm">
+                            <tbody>
                                 <template x-for="item in stockAll">
-                                    <tr :class="Number(item[3]) <= Number(item[2]) ? 'bg-red-50 text-red-600' : 'hover:bg-slate-50'">
-                                        <td class="p-2 border-b truncate" x-text="item[0]"></td>
-                                        <td class="p-2 border-b text-center font-mono" x-text="item[1]"></td>
-                                        <td class="p-2 border-b text-center" x-text="item[2]"></td>
-                                        <td class="p-2 border-b text-center font-bold" x-text="item[3]"></td>
+                                    <tr :class="Number(item[3]) <= Number(item[2]) ? 'bg-red-50 text-red-600 font-bold' : 'hover:bg-slate-50'">
+                                        <td class="p-2 border-b truncate" x-text="item[0]"></td><td class="p-2 border-b text-center font-mono" x-text="item[1]"></td><td class="p-2 border-b text-center" x-text="item[2]"></td><td class="p-2 border-b text-center font-bold" x-text="item[3]"></td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -160,107 +128,48 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXJPGZAVcjP1ybiq_fB1ovOwly3vo44_aFCR1VK1AH_yHPBeeoD0y65ewNVKMIoPeg/exec";
-
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbziRqcAii8LZ_i48YazMQIrLjPF6Tub_j3fT7PdpnyER0FyzAjGCNtdytW8p0a-ywJG/exec";
         function app() {
             return {
-                tab: 'out',
-                loading: false,
-                users: [],
-                stockAll: [],
-                searchTerms: [],
-                scannedItem: null,
-                searchResult: null,
+                tab: 'out', loading: false, users: [], stockAll: [], searchTerms: [], scannedItem: null, searchResult: null,
                 form: { user: '', qty: 1, note: '', code: '', name: '' },
-
                 async init() {
-                    const res = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'getInitialData' })
-                    });
+                    const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
                     const data = await res.json();
-                    this.users = data.users;
-                    this.stockAll = data.stockAll;
-                    this.searchTerms = data.searchTerms;
+                    this.users = data.users; this.stockAll = data.stockAll; this.searchTerms = data.searchTerms;
                     this.initAutocomplete();
                 },
-
                 initAutocomplete() {
                     setTimeout(() => {
                         const el = document.getElementById('searchStock');
                         if (el) new Awesomplete(el, { list: this.searchTerms, minChars: 1, autoFirst: true });
                     }, 300);
                 },
-
-                changeTab(t) {
-                    this.tab = t;
-                    this.resetScannerState();
-                    if(t === 'stock') this.initAutocomplete();
-                },
-
-                resetScannerState() {
-                    this.scannedItem = null;
-                    this.form.code = '';
-                    this.form.name = '';
-                    this.form.qty = 1;
-                    this.form.note = '';
-                    // ไม่รีเซ็ต user เพื่อให้ใช้ชื่อเดิมต่อเนื่องได้
-                },
-
+                changeTab(t) { this.tab = t; this.resetForm(); if(t === 'stock') this.initAutocomplete(); },
+                resetForm() { this.scannedItem = null; this.form.code = ''; this.form.name = ''; this.form.qty = 1; this.form.note = ''; },
                 startScan() {
                     const html5QrCode = new Html5Qrcode("reader");
-                    html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
-                        async (text) => {
-                            html5QrCode.stop();
-                            document.getElementById('reader').innerHTML = '';
-                            const res = await fetch(WEB_APP_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({ action: 'scanCode', code: text })
-                            });
-                            const item = await res.json();
-                            if(item) {
-                                this.scannedItem = item;
-                                this.form.code = item.code;
-                                this.form.name = item.name;
-                                this.form.qty = 1;
-                            } else {
-                                alert('❌ ไม่พบข้อมูลรหัสนี้');
-                            }
-                        }
-                    ).catch(err => alert("⚠️ กล้องทำงานผิดพลาด: " + err));
+                    html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, async (text) => {
+                        html5QrCode.stop(); document.getElementById('reader').innerHTML = '';
+                        const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'scanCode', code: text }) });
+                        const item = await res.json();
+                        if(item) { this.scannedItem = item; this.form.code = item.code; this.form.name = item.name; this.form.qty = 1; }
+                        else alert('❌ ไม่พบข้อมูล');
+                    }).catch(err => alert("⚠️ ข้อผิดพลาดกล้อง: " + err));
                 },
-
                 async saveData() {
-                    // ตรวจสอบยอดเบิกห้ามเกินยอดคงเหลือ
-                    if(this.tab === 'out' && this.form.qty > this.scannedItem.balance) {
-                        alert('❌ จำนวนที่เบิกห้ามมากกว่ายอดคงเหลือในสต็อก!');
-                        return;
-                    }
-
+                    if(this.tab === 'out' && this.form.qty > this.scannedItem.balance) return alert('❌ ยอดเบิกเกินสต็อก!');
                     this.loading = true;
                     try {
-                        await fetch(WEB_APP_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ action: 'saveTransaction', type: this.tab, ...this.form })
-                        });
-                        alert('✅ บันทึกข้อมูลสำเร็จ');
-                        this.resetScannerState();
-                        await this.init(); // รีโหลดสต็อกทันที
-                    } catch (e) {
-                        alert('เกิดข้อผิดพลาด');
-                    } finally {
-                        this.loading = false;
-                    }
+                        await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'saveTransaction', type: this.tab, ...this.form }) });
+                        alert('✅ บันทึกสำเร็จ'); this.resetForm(); await this.init();
+                    } catch (e) { alert('ผิดพลาด'); } finally { this.loading = false; }
                 },
-
                 searchData() {
                     const val = document.getElementById('searchStock').value;
                     const f = this.stockAll.find(i => i[0].includes(val) || val.includes(i[0]));
-                    if(f) {
-                        this.searchResult = { name: f[0], pos: f[1], ss: f[2], qty: f[3] };
-                    } else {
-                        alert('🔍 ไม่พบข้อมูล');
-                    }
+                    if(f) this.searchResult = { name: f[0], pos: f[1], ss: f[2], qty: f[3] };
+                    else alert('🔍 ไม่พบข้อมูล');
                 }
             }
         }
