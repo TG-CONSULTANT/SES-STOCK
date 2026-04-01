@@ -15,7 +15,22 @@
         body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
         .bg-gradient { background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%); }
         .tab-active { border-bottom: 4px solid #fff; font-weight: 600; color: #fff; }
-        .col-1 { width: 18%; } .col-2 { width: 46%; } .col-3 { width: 18%; } .col-4 { width: 18%; }
+        
+        /* สัดส่วนตาราง 18% : 46% : 18% : 18% */
+        .col-1 { width: 18%; }
+        .col-2 { width: 46%; }
+        .col-3 { width: 18%; }
+        .col-4 { width: 18%; }
+
+        /* แก้ไข: การตัดคำและแสดงผลชื่อรายการทั้งหมด */
+        .wrap-text { 
+            white-space: normal !important; 
+            word-wrap: break-word; 
+            overflow-wrap: break-word;
+            line-height: 1.4;
+            padding: 8px 4px !important;
+        }
+
         .awesomplete { width: 100% !important; }
         [x-cloak] { display: none !important; }
     </style>
@@ -32,6 +47,7 @@
     </div>
 
     <div class="container mx-auto px-1.5 mt-3" x-cloak>
+        
         <template x-if="tab === 'out' || tab === 'in'">
             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                 <div>
@@ -62,12 +78,13 @@
                         <tbody class="text-sm">
                             <template x-if="scannedItem">
                                 <tr class="bg-blue-50/40">
-                                    <td class="p-2 border-b text-center font-mono truncate" x-text="scannedItem.code"></td>
-                                    <td class="p-2 border-b truncate" x-text="scannedItem.name"></td>
-                                    <td class="p-2 border-b text-center font-semibold" x-text="scannedItem.balance"></td>
-                                    <td class="p-2 border-b">
+                                    <td class="p-2 border-b text-center font-mono truncate align-top pt-3" x-text="scannedItem.code"></td>
+                                    <td class="p-2 border-b wrap-text align-top" x-text="scannedItem.name"></td>
+                                    <td class="p-2 border-b text-center font-semibold align-top pt-3" x-text="scannedItem.balance"></td>
+                                    <td class="p-2 border-b align-top pt-2">
                                         <input type="number" x-model.number="form.qty" @focus="$event.target.select()"
-                                               class="w-full border border-blue-400 rounded-lg text-center py-1.5 font-bold outline-none" min="1">
+                                               class="w-full border border-blue-400 rounded-lg text-center py-1.5 font-bold outline-none focus:bg-white" 
+                                               min="1">
                                     </td>
                                 </tr>
                             </template>
@@ -79,6 +96,7 @@
                 </div>
 
                 <textarea x-model="form.note" class="w-full border border-slate-300 p-3 rounded-xl text-sm outline-none" rows="2" placeholder="ระบุหมายเหตุ..."></textarea>
+                
                 <button @click="saveData()" :disabled="loading || !form.code || !form.user" 
                     class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg active:scale-95 disabled:bg-slate-300 transition-all"
                     x-text="loading ? '⏳ กำลังบันทึก...' : (tab === 'out' ? 'บันทึกเบิกออก' : 'บันทึกรับเข้า')"></button>
@@ -94,13 +112,20 @@
                         </div>
                         <button @click="searchData()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">ค้นหา</button>
                     </div>
+                    
                     <div class="mt-4 overflow-hidden rounded-xl border border-blue-100 shadow-sm" x-show="searchResult">
                         <table class="w-full text-sm table-fixed border-collapse">
                             <tr class="bg-blue-600 text-white font-semibold">
-                                <td class="p-2 col-2">รายการ</td><td class="p-2 col-1 text-center">ตำแหน่ง</td><td class="p-2 col-1 text-center">SS</td><td class="p-2 col-1 text-center font-bold">เหลือ</td>
+                                <td class="p-2 col-2">รายการ</td>
+                                <td class="p-2 col-1 text-center">ตำแหน่ง</td>
+                                <td class="p-2 col-1 text-center">SS</td>
+                                <td class="p-2 col-1 text-center font-bold">เหลือ</td>
                             </tr>
                             <tr class="bg-white">
-                                <td class="p-2 border-b truncate font-medium" x-text="searchResult.name"></td><td class="p-2 border-b text-center" x-text="searchResult.pos"></td><td class="p-2 border-b text-center" x-text="searchResult.ss"></td><td class="p-2 border-b text-center font-bold text-blue-600" x-text="searchResult.qty"></td>
+                                <td class="p-2 border-b wrap-text font-medium" x-text="searchResult.name"></td>
+                                <td class="p-2 border-b text-center font-mono align-top pt-3" x-text="searchResult.pos"></td>
+                                <td class="p-2 border-b text-center align-top pt-3" x-text="searchResult.ss"></td>
+                                <td class="p-2 border-b text-center font-bold text-blue-600 align-top pt-3" x-text="searchResult.qty"></td>
                             </tr>
                         </table>
                     </div>
@@ -111,12 +136,20 @@
                     <div class="overflow-hidden rounded-xl border border-slate-200">
                         <table class="w-full text-left table-fixed border-collapse text-sm">
                             <thead class="bg-slate-50 text-[0.65rem] font-bold text-slate-400 border-b">
-                                <tr><th class="p-2 col-2">รายการ</th><th class="p-2 col-1 text-center">POS</th><th class="p-2 col-1 text-center">SS</th><th class="p-2 col-1 text-center">เหลือ</th></tr>
+                                <tr>
+                                    <th class="p-2 col-2">รายการ</th>
+                                    <th class="p-2 col-1 text-center">POS</th>
+                                    <th class="p-2 col-1 text-center">SS</th>
+                                    <th class="p-2 col-1 text-center">เหลือ</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <template x-for="item in stockAll">
                                     <tr :class="Number(item[3]) <= Number(item[2]) ? 'bg-red-50 text-red-600 font-bold' : 'hover:bg-slate-50'">
-                                        <td class="p-2 border-b truncate" x-text="item[0]"></td><td class="p-2 border-b text-center font-mono" x-text="item[1]"></td><td class="p-2 border-b text-center" x-text="item[2]"></td><td class="p-2 border-b text-center font-bold" x-text="item[3]"></td>
+                                        <td class="p-2 border-b wrap-text" x-text="item[0]"></td>
+                                        <td class="p-2 border-b text-center font-mono align-top pt-3" x-text="item[1]"></td>
+                                        <td class="p-2 border-b text-center align-top pt-3" x-text="item[2]"></td>
+                                        <td class="p-2 border-b text-center font-bold align-top pt-3" x-text="item[3]"></td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -128,48 +161,106 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbziRqcAii8LZ_i48YazMQIrLjPF6Tub_j3fT7PdpnyER0FyzAjGCNtdytW8p0a-ywJG/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydIKHrE-a6wd78N6GmZjki2MovjQERY-O4r5P7-LQHc8byFczRDFZbL1v5UtBHN4aa/exec";
+
         function app() {
             return {
-                tab: 'out', loading: false, users: [], stockAll: [], searchTerms: [], scannedItem: null, searchResult: null,
+                tab: 'out',
+                loading: false,
+                users: [],
+                stockAll: [],
+                searchTerms: [],
+                scannedItem: null,
+                searchResult: null,
+                quickLookup: {},
                 form: { user: '', qty: 1, note: '', code: '', name: '' },
+
                 async init() {
-                    const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
+                    const res = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'getInitialData' })
+                    });
                     const data = await res.json();
-                    this.users = data.users; this.stockAll = data.stockAll; this.searchTerms = data.searchTerms;
+                    this.users = data.users;
+                    this.stockAll = data.stockAll;
+                    this.searchTerms = data.searchTerms;
+                    this.quickLookup = data.quickLookup; // เก็บค่าไว้ในเครื่องเพื่อสแกนทันที
                     this.initAutocomplete();
                 },
+
                 initAutocomplete() {
                     setTimeout(() => {
                         const el = document.getElementById('searchStock');
                         if (el) new Awesomplete(el, { list: this.searchTerms, minChars: 1, autoFirst: true });
                     }, 300);
                 },
-                changeTab(t) { this.tab = t; this.resetForm(); if(t === 'stock') this.initAutocomplete(); },
-                resetForm() { this.scannedItem = null; this.form.code = ''; this.form.name = ''; this.form.qty = 1; this.form.note = ''; },
+
+                changeTab(t) {
+                    this.tab = t;
+                    this.resetForm();
+                    if(t === 'stock') this.initAutocomplete();
+                },
+
+                resetForm() {
+                    this.scannedItem = null;
+                    this.form.code = '';
+                    this.form.name = '';
+                    this.form.qty = 1;
+                    this.form.note = '';
+                },
+
                 startScan() {
                     const html5QrCode = new Html5Qrcode("reader");
-                    html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, async (text) => {
-                        html5QrCode.stop(); document.getElementById('reader').innerHTML = '';
-                        const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'scanCode', code: text }) });
-                        const item = await res.json();
-                        if(item) { this.scannedItem = item; this.form.code = item.code; this.form.name = item.name; this.form.qty = 1; }
-                        else alert('❌ ไม่พบข้อมูล');
-                    }).catch(err => alert("⚠️ ข้อผิดพลาดกล้อง: " + err));
+                    html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 },
+                        (text) => {
+                            html5QrCode.stop();
+                            document.getElementById('reader').innerHTML = '';
+                            
+                            // เร็วที่สุด: ค้นหาจากฐานข้อมูลในเครื่องทันที
+                            const item = this.quickLookup[text.trim()];
+                            if(item) {
+                                this.scannedItem = item;
+                                this.form.code = item.code;
+                                this.form.name = item.name;
+                                this.form.qty = 1;
+                            } else {
+                                alert('❌ ไม่พบรหัสอะไหล่นี้ในเครื่อง: ' + text);
+                            }
+                        }
+                    ).catch(err => alert("⚠️ กล้องผิดพลาด: " + err));
                 },
+
                 async saveData() {
-                    if(this.tab === 'out' && this.form.qty > this.scannedItem.balance) return alert('❌ ยอดเบิกเกินสต็อก!');
+                    if(this.tab === 'out' && this.form.qty > this.scannedItem.balance) {
+                        alert('❌ จำนวนที่เบิกห้ามมากกว่ายอดคงเหลือ!');
+                        return;
+                    }
+
                     this.loading = true;
                     try {
-                        await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'saveTransaction', type: this.tab, ...this.form }) });
-                        alert('✅ บันทึกสำเร็จ'); this.resetForm(); await this.init();
-                    } catch (e) { alert('ผิดพลาด'); } finally { this.loading = false; }
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'saveTransaction', type: this.tab, ...this.form })
+                        });
+                        alert('✅ บันทึกสำเร็จ');
+                        this.resetForm();
+                        // อัปเดตข้อมูลเบื้องหลังเพื่อให้ยอดสต็อกล่าสุดเสมอ
+                        this.init(); 
+                    } catch (e) {
+                        alert('เกิดข้อผิดพลาด');
+                    } finally {
+                        this.loading = false;
+                    }
                 },
+
                 searchData() {
                     const val = document.getElementById('searchStock').value;
                     const f = this.stockAll.find(i => i[0].includes(val) || val.includes(i[0]));
-                    if(f) this.searchResult = { name: f[0], pos: f[1], ss: f[2], qty: f[3] };
-                    else alert('🔍 ไม่พบข้อมูล');
+                    if(f) {
+                        this.searchResult = { name: f[0], pos: f[1], ss: f[2], qty: f[3] };
+                    } else {
+                        alert('🔍 ไม่พบข้อมูล');
+                    }
                 }
             }
         }
