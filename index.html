@@ -10,106 +10,139 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
     <style>
-        .bg-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .tab-active { border-bottom: 4px solid #fff; font-weight: bold; }
+        /* เพิ่มขนาดตัวอักษร 10% ทั่วทั้งหน้า */
+        html { font-size: 17.6px; } /* มาตรฐาน 16px + 10% = 17.6px */
+        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .bg-gradient { background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%); }
+        .tab-active { border-bottom: 3px solid #fff; font-weight: bold; color: #fff; }
+        
+        /* กำหนดสัดส่วนตารางแบบ Fix % */
+        .w-55 { width: 55%; }
+        .w-15 { width: 15%; }
+
+        /* ปรับแต่ง Awesomplete ให้เข้ากับ UI */
+        .awesomplete { width: 100% !important; }
+        .awesomplete > ul { border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen pb-10" x-data="app()">
+<body class="bg-slate-100 min-h-screen pb-4" x-data="app()">
     
-    <div class="bg-gradient text-white p-6 shadow-lg rounded-b-3xl">
-        <h1 class="text-2xl font-bold text-center">ทรัพย์รุ่งเรือง สต็อกอะไหล่</h1>
-        <div class="flex justify-around mt-6">
-            <button @click="tab = 'out'" :class="tab === 'out' ? 'tab-active' : ''" class="pb-2">เบิกออก</button>
-            <button @click="tab = 'in'" :class="tab === 'in' ? 'tab-active' : ''" class="pb-2">รับเข้า</button>
-            <button @click="tab = 'stock'" :class="tab === 'stock' ? 'tab-active' : ''" class="pb-2">Stock</button>
+    <div class="bg-gradient text-white px-2 py-2 shadow-lg sticky top-0 z-50">
+        <h1 class="text-lg font-bold text-center mb-1">ทรัพย์รุ่งเรือง-สต็อกอะไหล่</h1>
+        <div class="flex justify-around text-sm">
+            <button @click="tab = 'out'" :class="tab === 'out' ? 'tab-active' : ''" class="pb-1 px-4 transition-all">เบิกออก</button>
+            <button @click="tab = 'in'" :class="tab === 'in' ? 'tab-active' : ''" class="pb-1 px-4 transition-all">รับเข้า</button>
+            <button @click="tab = 'stock'" :class="tab === 'stock' ? 'tab-active' : ''" class="pb-1 px-4 transition-all">Stock</button>
         </div>
     </div>
 
-    <div class="container mx-auto px-4 mt-6">
+    <div class="container mx-auto px-1.5 mt-3">
         
         <template x-if="tab === 'out' || tab === 'in'">
-            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4">
-                <label class="block font-bold text-gray-700">ผู้บันทึก</label>
-                <select x-model="form.user" class="w-full border p-3 rounded-xl bg-gray-50">
-                    <option value="">เลือกผู้บันทึก</option>
-                    <template x-for="u in users">
-                        <option :value="u" x-text="u"></option>
-                    </template>
-                </select>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200 space-y-3">
+                
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">ผู้บันทึก</label>
+                    <select x-model="form.user" class="w-full border border-slate-300 p-2 rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- กรุณาเลือก --</option>
+                        <template x-for="u in users">
+                            <option :value="u" x-text="u"></option>
+                        </template>
+                    </select>
+                </div>
 
-                <button @click="startScan()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                    📷 สแกน QR Code
+                <button @click="startScan()" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition">
+                    📷 สแกน QR Code อะไหล่
                 </button>
-                <div id="reader" class="w-full"></div>
+                <div id="reader" class="w-full rounded-lg overflow-hidden border-2 border-dashed border-slate-300"></div>
 
-                <div class="overflow-x-auto mt-4">
-                    <table class="w-full text-sm text-left border">
-                        <thead class="bg-gray-200">
+                <div class="overflow-hidden rounded-lg border border-slate-200">
+                    <table class="w-full text-left table-fixed border-collapse">
+                        <thead class="bg-slate-50 text-xs uppercase text-slate-500">
                             <tr>
-                                <th class="p-2">รหัส</th>
-                                <th class="p-2">รายการ</th>
-                                <th class="p-2 text-center">เหลือ</th>
-                                <th class="p-2 text-center" x-text="tab === 'out' ? 'เบิก' : 'รับ'"></th>
+                                <th class="p-2 border-b w-15 text-center">รหัส</th>
+                                <th class="p-2 border-b w-55">รายการ</th>
+                                <th class="p-2 border-b w-15 text-center">เหลือ</th>
+                                <th class="p-2 border-b w-15 text-center" x-text="tab === 'out' ? 'เบิก' : 'รับ'"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-sm">
                             <template x-if="scannedItem">
-                                <tr>
-                                    <td class="p-2" x-text="scannedItem.code"></td>
-                                    <td class="p-2" x-text="scannedItem.name"></td>
-                                    <td class="p-2 text-center" x-text="scannedItem.balance"></td>
-                                    <td class="p-2">
-                                        <input type="number" x-model="form.qty" class="w-16 border rounded text-center" min="1" :max="tab === 'out' ? scannedItem.balance : 9999">
+                                <tr class="bg-blue-50/50">
+                                    <td class="p-2 border-b text-center font-mono" x-text="scannedItem.code"></td>
+                                    <td class="p-2 border-b truncate" x-text="scannedItem.name"></td>
+                                    <td class="p-2 border-b text-center" x-text="scannedItem.balance"></td>
+                                    <td class="p-2 border-b">
+                                        <input type="number" x-model.number="form.qty" 
+                                               class="w-full border border-blue-300 rounded text-center py-1 font-bold outline-none" 
+                                               min="1">
                                     </td>
+                                </tr>
+                            </template>
+                            <template x-if="!scannedItem">
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-slate-400 italic">กรุณาสแกนรหัสอะไหล่...</td>
                                 </tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
 
-                <textarea x-model="form.note" class="w-full border p-3 rounded-xl mt-2" placeholder="หมายเหตุ..."></textarea>
+                <textarea x-model="form.note" class="w-full border border-slate-300 p-2 rounded-lg text-sm outline-none" rows="2" placeholder="พิมพ์หมายเหตุเพิ่มเติม..."></textarea>
                 
-                <button @click="saveData()" :disabled="loading" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold text-lg shadow-md active:scale-95 transition"
-                    x-text="loading ? 'กำลังบันทึก...' : (tab === 'out' ? 'บันทึกเบิกออก' : 'บันทึกรับเข้า')">
+                <button @click="saveData()" :disabled="loading || !form.code || !form.user" 
+                    class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:bg-blue-700 disabled:bg-slate-300 transition-all"
+                    x-text="loading ? '⏳ กำลังบันทึก...' : (tab === 'out' ? '✅ ยืนยันการเบิกออก' : '✅ ยืนยันการรับเข้า')">
                 </button>
             </div>
         </template>
 
         <template x-if="tab === 'stock'">
-            <div class="space-y-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm">
+            <div class="space-y-3">
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex gap-2">
-                        <input id="searchStock" class="flex-1 border p-3 rounded-xl" placeholder="พิมพ์ชื่อ/รหัสอะไหล่...">
-                        <button @click="searchData()" class="bg-indigo-600 text-white px-6 rounded-xl">ค้นหา</button>
+                        <div class="flex-1">
+                            <input id="searchStock" class="w-full border border-slate-300 p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="รหัส หรือ ชื่อรายการ...">
+                        </div>
+                        <button @click="searchData()" class="bg-blue-600 text-white px-4 rounded-lg font-bold active:scale-95 transition">ค้นหา</button>
                     </div>
                     
-                    <div class="mt-4 overflow-x-auto" x-show="searchResult">
-                        <table class="w-full text-sm border">
-                            <tr class="bg-indigo-100"><th class="p-2">รายการ</th><th class="p-2">ตำแหน่ง</th><th class="p-2">SS</th><th class="p-2">เหลือ</th></tr>
-                            <template x-if="searchResult">
-                                <tr>
-                                    <td class="p-2" x-text="searchResult[1]"></td>
-                                    <td class="p-2 text-center" x-text="searchResult[2]"></td>
-                                    <td class="p-2 text-center" x-text="searchResult[3]"></td>
-                                    <td class="p-2 text-center font-bold" x-text="searchResult[4]"></td>
-                                </tr>
-                            </template>
+                    <div class="mt-3 overflow-hidden rounded-lg border border-blue-100" x-show="searchResult">
+                        <table class="w-full text-sm table-fixed border-collapse">
+                            <tr class="bg-blue-600 text-white">
+                                <td class="p-2 w-55 font-bold">รายการ</td>
+                                <td class="p-2 w-15 text-center">ตำแหน่ง</td>
+                                <td class="p-2 w-15 text-center">SS</td>
+                                <td class="p-2 w-15 text-center font-bold">เหลือ</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="p-2 border-b truncate" x-text="searchResult.name"></td>
+                                <td class="p-2 border-b text-center font-mono" x-text="searchResult.pos"></td>
+                                <td class="p-2 border-b text-center" x-text="searchResult.ss"></td>
+                                <td class="p-2 border-b text-center font-bold text-blue-600" x-text="searchResult.qty"></td>
+                            </tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm">
-                    <h3 class="font-bold mb-3 border-l-4 border-red-500 pl-2">สถานะสต็อกทั้งหมด</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm border">
-                            <thead class="bg-gray-100">
-                                <tr><th class="p-2">รายการ</th><th class="p-2">ตำแหน่ง</th><th class="p-2">SS</th><th class="p-2">เหลือ</th></tr>
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-2 border-l-4 border-blue-600 pl-2">สถานะสต็อกปัจจุบัน</h3>
+                    <div class="overflow-hidden rounded-lg border border-slate-200">
+                        <table class="w-full text-left table-fixed border-collapse">
+                            <thead class="bg-slate-50 text-xs font-semibold text-slate-500 border-b">
+                                <tr>
+                                    <th class="p-2 w-55">รายการ</th>
+                                    <th class="p-2 w-15 text-center">ตำแหน่ง</th>
+                                    <th class="p-2 w-15 text-center">SS</th>
+                                    <th class="p-2 w-15 text-center">เหลือ</th>
+                                </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="text-sm">
                                 <template x-for="item in stockAll">
-                                    <tr :class="item[3] <= item[2] ? 'bg-red-100 text-red-700' : ''">
-                                        <td class="p-2 border-b" x-text="item[0]"></td>
-                                        <td class="p-2 border-b text-center" x-text="item[1]"></td>
+                                    <tr :class="Number(item[3]) <= Number(item[2]) ? 'bg-red-50 text-red-600' : 'hover:bg-slate-50'">
+                                        <td class="p-2 border-b truncate" x-text="item[0]"></td>
+                                        <td class="p-2 border-b text-center font-mono" x-text="item[1]"></td>
                                         <td class="p-2 border-b text-center" x-text="item[2]"></td>
                                         <td class="p-2 border-b text-center font-bold" x-text="item[3]"></td>
                                     </tr>
@@ -123,7 +156,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz433pyNnU9OZKYPzOtk2HUgD3z1MsoEarhB3tfg_c-fgyTEmgGqvX9KI-3QTnF_q--/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZotol0jNhr3aLm7oGlSDFnArTmBqstsCFpARaXrCh1tECVeUa1yF-IZMfi51WvQKF/exec";
 
         function app() {
             return {
@@ -134,27 +167,43 @@
                 scannedItem: null,
                 searchResult: null,
                 form: { user: '', qty: 1, note: '', code: '', name: '' },
+                awesompleteInstance: null,
 
-                init() {
-                    this.fetchInitialData();
+                async init() {
+                    await this.fetchInitialData();
                 },
 
                 async fetchInitialData() {
-                    const res = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'getInitialData' })
-                    });
-                    const data = await res.json();
-                    this.users = data.users;
-                    this.stockAll = data.stockAll;
-                    new Awesomplete(document.getElementById('searchStock'), { list: data.searchTerms });
+                    try {
+                        const res = await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'getInitialData' })
+                        });
+                        const data = await res.json();
+                        this.users = data.users;
+                        this.stockAll = data.stockAll;
+                        
+                        // ตั้งค่า Awesomplete สำหรับค้นหา
+                        const input = document.getElementById('searchStock');
+                        this.awesompleteInstance = new Awesomplete(input, {
+                            list: data.searchTerms,
+                            minChars: 1,
+                            autoFirst: true
+                        });
+                    } catch (e) {
+                        console.error("Fetch error:", e);
+                    }
                 },
 
                 startScan() {
                     const html5QrCode = new Html5Qrcode("reader");
-                    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                    
+                    html5QrCode.start({ facingMode: "environment" }, config,
                         async (decodedText) => {
                             html5QrCode.stop();
+                            document.getElementById('reader').innerHTML = '';
+                            
                             const res = await fetch(WEB_APP_URL, {
                                 method: 'POST',
                                 body: JSON.stringify({ action: 'scanCode', code: decodedText })
@@ -164,33 +213,55 @@
                                 this.scannedItem = item;
                                 this.form.code = item.code;
                                 this.form.name = item.name;
+                                this.form.qty = 1;
                             } else {
-                                alert('ไม่พบข้อมูลรหัสนี้');
+                                alert('❌ ไม่พบรหัสอะไหล่นี้ในฐานข้อมูล STOCK');
                             }
                         }
-                    );
+                    ).catch(err => alert("⚠️ ไม่สามารถเข้าถึงกล้องได้: " + err));
                 },
 
                 async saveData() {
-                    if(!this.form.user || !this.form.code) return alert('กรุณาระบุผู้บันทึกและสแกนของ');
+                    if(this.tab === 'out' && this.form.qty > this.scannedItem.balance) {
+                        alert('❌ จำนวนที่เบิกห้ามมากกว่าจำนวนคงเหลือ!');
+                        return;
+                    }
+                    
                     this.loading = true;
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'saveTransaction',
-                            type: this.tab,
-                            ...this.form
-                        })
-                    });
-                    alert('บันทึกสำเร็จ');
-                    location.reload();
+                    try {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'saveTransaction',
+                                type: this.tab,
+                                ...this.form
+                            })
+                        });
+                        alert('✅ บันทึกสำเร็จแล้ว');
+                        window.location.reload();
+                    } catch (e) {
+                        alert('❌ เกิดข้อผิดพลาดในการบันทึก');
+                        this.loading = false;
+                    }
                 },
 
                 searchData() {
-                    const term = document.getElementById('searchStock').value;
-                    // ค้นหาจาก stockAll (จำลองการค้นหาจากข้อมูลที่มีอยู่)
-                    const found = this.stockAll.find(item => item[0].includes(term));
-                    if(found) this.searchResult = [null, ...found];
+                    const val = document.getElementById('searchStock').value;
+                    if(!val) return;
+                    
+                    // ค้นหาจากรายการ STOCK (B=รายการ, C=ตำแหน่ง, D=SS, E=เหลือ)
+                    const found = this.stockAll.find(item => item[0].includes(val) || val.includes(item[0]));
+                    if(found) {
+                        this.searchResult = {
+                            name: found[0],
+                            pos: found[1],
+                            ss: found[2],
+                            qty: found[3]
+                        };
+                    } else {
+                        alert('🔍 ไม่พบข้อมูลที่ค้นหา');
+                        this.searchResult = null;
+                    }
                 }
             }
         }
